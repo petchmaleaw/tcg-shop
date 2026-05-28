@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — TCG Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="layout">
+
+  <!-- ===== NAV ===== -->
+  <nav class="nav">
+    <div class="nav-logo">
+      <span>🃏</span> TCG Admin
+    </div>
+    <ul class="nav-menu">
+      <li class="nav-link active" data-tab="add">
+        <span class="nav-icon">➕</span> เพิ่มการ์ด
+      </li>
+      <li class="nav-link" data-tab="listings">
+        <span class="nav-icon">📋</span> รายการขาย
+      </li>
+      <li class="nav-link" data-tab="settings">
+        <span class="nav-icon">⚙️</span> ตั้งค่า
+      </li>
+    </ul>
+    <a href="/" target="_blank" class="view-store">
+      <span>🌐</span> ดูหน้าร้าน
+    </a>
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <!-- ── TAB: เพิ่มการ์ด ── -->
+    <div class="tab active" id="tab-add">
+      <h2 class="page-title">เพิ่มการ์ด</h2>
+      <div class="add-layout">
+
+        <!-- Search JustTCG -->
+        <section class="panel">
+          <h3 class="panel-title">ค้นหาจาก JustTCG API</h3>
+          <div class="search-bar">
+            <select id="gameFilter"><option value="">ทุกเกม</option></select>
+            <input type="text" id="apiSearch" placeholder="ชื่อการ์ด...">
+            <button class="btn btn-primary" id="apiSearchBtn">ค้นหา</button>
+          </div>
+          <div id="apiResults" class="api-results">
+            <div class="hint-msg">🔍 พิมพ์ชื่อการ์ดแล้วกด Enter หรือปุ่มค้นหา</div>
+          </div>
+        </section>
+
+        <!-- Add Form -->
+        <section class="panel">
+          <h3 class="panel-title">ข้อมูลที่ลงขาย</h3>
+          <form id="addForm" enctype="multipart/form-data">
+            <!-- hidden -->
+            <input type="hidden" name="card_id"             id="f_card_id">
+            <input type="hidden" name="card_image"          id="f_card_image">
+            <input type="hidden" name="game"                id="f_game">
+            <input type="hidden" name="game_id"             id="f_game_id">
+            <input type="hidden" name="set_name"            id="f_set_name">
+            <input type="hidden" name="reference_price_usd" id="f_ref_usd">
+
+            <!-- preview -->
+            <div class="img-section">
+              <div class="img-preview" id="imgPreview">
+                <span class="img-ph">🃏</span>
+              </div>
+              <div style="flex:1">
+                <label class="file-btn" for="fileCustom">📁 อัปโหลดรูป</label>
+                <input type="file" id="fileCustom" name="custom_image" accept="image/*">
+                <p class="file-hint" style="margin-bottom:8px">หรือวาง URL รูปภาพ</p>
+                <input type="text" id="imgUrlInput" placeholder="https://... URL รูปการ์ด"
+                       style="width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:6px;font-family:Kanit,sans-serif;font-size:.82rem">
+                <button type="button" class="btn btn-xs btn-ghost" id="clearImgBtn" style="display:none;margin-top:6px">✕ ล้างรูป</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>ชื่อการ์ด *</label>
+              <input type="text" name="card_name" id="f_name" placeholder="ชื่อการ์ด" required>
+            </div>
+            <div class="field">
+              <label>รหัสการ์ด</label>
+              <input type="text" name="card_code" id="f_code" placeholder="เช่น 4/102">
+            </div>
+            <div class="field">
+              <label>ราคาอ้างอิง (USD จาก API)</label>
+              <div class="ref-price" id="refPriceBox">—</div>
+            </div>
+            <div class="field">
+              <label>ราคาขาย (THB) *</label>
+              <input type="number" name="price_thb" id="f_price" placeholder="0" min="0" step="1" required>
+            </div>
+            <div class="field">
+              <label>ชื่อผู้ขาย <small>(ไม่แสดงหน้าร้าน)</small></label>
+              <input type="text" name="seller_name" id="f_seller" placeholder="ชื่อ-นามสกุล">
+            </div>
+            <div class="field">
+              <label>สถานะสินค้า</label>
+              <div class="radio-row">
+                <label class="radio"><input type="radio" name="in_stock" value="true" checked> มีของ</label>
+                <label class="radio"><input type="radio" name="in_stock" value="false"> หมด</label>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-success w-full">✅ เพิ่มการ์ดนี้</button>
+          </form>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- ── TAB: รายการขาย ── -->
+    <div class="tab" id="tab-listings">
+      <div class="page-header">
+        <h2 class="page-title">รายการขายทั้งหมด</h2>
+        <button class="btn btn-ghost" onclick="loadListingsTab()">🔄 รีเฟรช</button>
+      </div>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>รูป</th>
+              <th>ชื่อการ์ด</th>
+              <th>รหัส</th>
+              <th>เกม</th>
+              <th>ราคา (THB)</th>
+              <th>ผู้ขาย</th>
+              <th>สถานะ</th>
+              <th>วันที่</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="listingsTbody">
+            <tr><td colspan="9" class="center muted">กำลังโหลด...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: ตั้งค่า ── -->
+    <div class="tab" id="tab-settings">
+      <h2 class="page-title">ตั้งค่า</h2>
+      <div class="settings-box">
+        <div class="field">
+          <label>ชื่อร้าน (แสดงที่ Banner)</label>
+          <input type="text" id="s_shopName" placeholder="TCG Shop">
+        </div>
+        <div class="field">
+          <label>ข้อความ Banner รอง</label>
+          <input type="text" id="s_bannerText" placeholder="ร้านฝากขายการ์ดสะสม...">
+        </div>
+        <div class="field">
+          <label>อัตราแลกเปลี่ยน USD → THB</label>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="color:#64748b">1 USD =</span>
+            <input type="number" id="s_usdRate" style="width:110px" min="1" step="0.01">
+            <span style="color:#64748b">THB</span>
+          </div>
+        </div>
+        <button class="btn btn-success" onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ===== EDIT MODAL ===== -->
+<div class="modal-bg" id="editModal">
+  <div class="modal">
+    <h3 class="modal-title">แก้ไขการ์ด</h3>
+    <form id="editForm" enctype="multipart/form-data">
+      <input type="hidden" id="e_id" name="id">
+      <div class="img-section">
+        <div class="img-preview" id="editImgPreview"><span class="img-ph">🃏</span></div>
+        <div>
+          <label class="file-btn" for="eFileCustom">📁 เปลี่ยนรูป</label>
+          <input type="file" id="eFileCustom" name="custom_image" accept="image/*">
+        </div>
+      </div>
+      <div class="field"><label>ชื่อการ์ด</label><input type="text" name="card_name" id="e_name"></div>
+      <div class="field"><label>รหัสการ์ด</label><input type="text" name="card_code" id="e_code"></div>
+      <div class="field"><label>ราคา (THB)</label><input type="number" name="price_thb" id="e_price" min="0" step="1"></div>
+      <div class="field"><label>ชื่อผู้ขาย</label><input type="text" name="seller_name" id="e_seller"></div>
+      <div class="field">
+        <label>สถานะ</label>
+        <div class="radio-row">
+          <label class="radio"><input type="radio" name="in_stock" value="true"> มีของ</label>
+          <label class="radio"><input type="radio" name="in_stock" value="false"> หมด</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button>
+        <button type="submit" class="btn btn-success">บันทึก</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TCG Shop - ร้านฝากขายการ์ด</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===== BANNER ===== -->
+  <header class="banner">
+    <div class="banner-overlay"></div>
+    <div class="banner-content">
+      <div class="banner-badge">✦ TRADING CARD GAME ✦</div>
+      <h1 class="banner-title" id="bannerTitle">TCG SHOP</h1>
+      <p class="banner-sub" id="bannerSub">ร้านฝากขายการ์ดสะสม คุณภาพเยี่ยม ราคาดี</p>
+    </div>
+    <div class="banner-cards">
+      <div class="float-card c1">🃏</div>
+      <div class="float-card c2">🎴</div>
+      <div class="float-card c3">🃏</div>
+    </div>
+  </header>
+
+  <!-- ===== SEARCH ===== -->
+  <div class="search-section">
+    <div class="search-container">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="ค้นหาการ์ด เช่น Charizard, Pikachu..." autocomplete="off">
+      <button class="search-clear" id="searchClear" style="display:none">✕</button>
+      <div class="search-dropdown" id="searchDropdown"></div>
+    </div>
+  </div>
+
+  <!-- ===== MAIN LAYOUT ===== -->
+  <div class="page-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h3 class="sidebar-title">หมวดหมู่</h3>
+      <ul class="category-list" id="categoryList">
+        <li class="category-item active" data-game="">
+          <span class="cat-dot"></span>
+          <span class="cat-name">ทั้งหมด</span>
+          <span class="cat-count" id="totalCount">0</span>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Content -->
+    <main class="content">
+      <div class="content-bar">
+        <p class="results-info" id="resultsInfo">กำลังโหลด...</p>
+        <label class="toggle-wrap">
+          <input type="checkbox" id="inStockOnly">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          <span>มีของเท่านั้น</span>
+        </label>
+      </div>
+
+      <div id="cardsGrid" class="cards-grid"></div>
+      <div id="emptyState" class="empty-state" style="display:none">
+        <div class="empty-icon">🔍</div>
+        <p>ไม่พบการ์ดที่ต้องการ</p>
+        <span>ลองเปลี่ยนคำค้นหาหรือหมวดหมู่</span>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
