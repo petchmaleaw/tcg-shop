@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>โปรไฟล์ — TCG Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0d1821;--surface:#162030;--surface2:#1e2e42;--border:#253650;
+          --accent:#f0c040;--accent-dark:#d4a820;--text:#e4ecf5;--muted:#7a9ab8;
+          --green:#22c55e;--red:#e53e3e;--radius:12px;--shadow:0 6px 24px rgba(0,0,0,.45)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+    .header{background:var(--surface);border-bottom:1px solid var(--border);
+            padding:14px 24px;display:flex;align-items:center;gap:16px;
+            position:sticky;top:0;z-index:100}
+    .header a.back{color:var(--muted);text-decoration:none;font-size:.9rem;
+                   display:flex;align-items:center;gap:6px}
+    .header a.back:hover{color:var(--accent)}
+    .header h1{font-size:1.1rem;font-weight:600}
+    .header-right{margin-left:auto}
+    .logout-btn{background:none;border:1px solid var(--border);color:var(--muted);
+                font-family:'Kanit',sans-serif;font-size:.78rem;padding:4px 10px;
+                border-radius:6px;cursor:pointer;transition:all .2s}
+    .logout-btn:hover{border-color:var(--red);color:#fc8181}
+
+    .wrap{max-width:560px;margin:0 auto;padding:32px 20px}
+
+    /* Avatar */
+    .avatar-row{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+    .avatar{width:64px;height:64px;border-radius:50%;background:var(--accent);
+            display:flex;align-items:center;justify-content:center;
+            font-size:1.7rem;font-weight:700;color:#1a2f4e;flex-shrink:0}
+    .avatar-info h2{font-size:1.05rem;font-weight:600}
+    .avatar-info p{font-size:.82rem;color:var(--muted);margin-top:2px}
+
+    /* Sections */
+    .section{background:var(--surface);border:1px solid var(--border);
+             border-radius:var(--radius);padding:22px;margin-bottom:20px}
+    .section-title{font-size:.82rem;font-weight:600;text-transform:uppercase;
+                   letter-spacing:1.5px;color:var(--muted);margin-bottom:18px;
+                   padding-bottom:12px;border-bottom:1px solid var(--border)}
+
+    .field{margin-bottom:16px}
+    .field label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:5px}
+    .field input,.field textarea{
+      width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);
+      border-radius:8px;color:var(--text);font-family:'Kanit',sans-serif;font-size:.9rem;
+      outline:none;transition:border-color .2s}
+    .field input:focus,.field textarea:focus{border-color:var(--accent)}
+    .field input[readonly]{opacity:.55;cursor:not-allowed}
+    .field textarea{resize:vertical;min-height:80px}
+
+    .btn-save{width:100%;padding:11px;background:var(--accent);color:#1a2f4e;border:none;
+              border-radius:8px;font-family:'Kanit',sans-serif;font-size:.95rem;font-weight:600;
+              cursor:pointer;transition:background .2s}
+    .btn-save:hover{background:var(--accent-dark)}
+    .btn-save:disabled{opacity:.6;cursor:not-allowed}
+
+    .msg{padding:10px 14px;border-radius:8px;font-size:.85rem;margin-bottom:14px;display:none}
+    .msg-ok{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+    .msg-err{background:rgba(229,62,62,.15);border:1px solid rgba(229,62,62,.3);color:#fc8181}
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/orders-history.html" class="back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    ประวัติการสั่งซื้อ
+  </a>
+  <h1>👤 โปรไฟล์</h1>
+  <div class="header-right">
+    <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="avatar-row">
+    <div class="avatar" id="avatar">?</div>
+    <div class="avatar-info">
+      <h2 id="avatarName">กำลังโหลด...</h2>
+      <p id="avatarEmail"></p>
+    </div>
+  </div>
+
+  <!-- Delivery info -->
+  <div class="section">
+    <div class="section-title">ข้อมูลจัดส่ง</div>
+    <div class="msg msg-ok" id="profileOk">บันทึกข้อมูลเรียบร้อยแล้ว</div>
+    <div class="msg msg-err" id="profileErr"></div>
+    <div class="field">
+      <label>Username (ไม่สามารถแก้ไขได้)</label>
+      <input type="text" id="p_username" readonly>
+    </div>
+    <div class="field">
+      <label>ชื่อ-นามสกุล *</label>
+      <input type="text" id="p_name" placeholder="ชื่อ นามสกุล">
+    </div>
+    <div class="field">
+      <label>เบอร์โทร</label>
+      <input type="tel" id="p_phone" placeholder="0812345678">
+    </div>
+    <div class="field">
+      <label>ที่อยู่สำหรับจัดส่ง</label>
+      <textarea id="p_address" placeholder="บ้านเลขที่ ถนน แขวง/ตำบล เขต/อำเภอ จังหวัด รหัสไปรษณีย์"></textarea>
+    </div>
+    <button class="btn-save" id="saveProfileBtn" onclick="saveProfile()">บันทึกข้อมูลจัดส่ง</button>
+  </div>
+
+  <!-- Change password -->
+  <div class="section">
+    <div class="section-title">เปลี่ยนรหัสผ่าน</div>
+    <div class="msg msg-ok" id="pwOk">เปลี่ยนรหัสผ่านเรียบร้อยแล้ว</div>
+    <div class="msg msg-err" id="pwErr"></div>
+    <div class="field">
+      <label>รหัสผ่านปัจจุบัน</label>
+      <input type="password" id="pw_current" placeholder="รหัสผ่านเดิม">
+    </div>
+    <div class="field">
+      <label>รหัสผ่านใหม่</label>
+      <input type="password" id="pw_new" placeholder="อย่างน้อย 4 ตัวอักษร">
+    </div>
+    <div class="field">
+      <label>ยืนยันรหัสผ่านใหม่</label>
+      <input type="password" id="pw_confirm" placeholder="ยืนยันรหัสผ่านใหม่">
+    </div>
+    <button class="btn-save" id="savePwBtn" onclick="savePassword()">เปลี่ยนรหัสผ่าน</button>
+  </div>
+</div>
+
+<script>
+async function init() {
+  const me = await fetch('/api/auth/me').then(r => r.json()).catch(() => ({ authenticated: false }));
+  if (!me.authenticated) { window.location.href = '/login.html?redirect=/profile.html'; return; }
+
+  document.getElementById('avatar').textContent    = me.name.charAt(0).toUpperCase();
+  document.getElementById('avatarName').textContent = me.name;
+  document.getElementById('avatarEmail').textContent  = '@' + (me.username || '');
+  document.getElementById('p_username').value = me.username || '';
+  document.getElementById('p_name').value     = me.name  || '';
+  document.getElementById('p_phone').value  = me.phone || '';
+  document.getElementById('p_address').value = me.address || '';
+}
+
+async function saveProfile() {
+  const btn = document.getElementById('saveProfileBtn');
+  const ok  = document.getElementById('profileOk');
+  const err = document.getElementById('profileErr');
+  ok.style.display = err.style.display = 'none';
+
+  const name    = document.getElementById('p_name').value.trim();
+  const phone   = document.getElementById('p_phone').value.trim();
+  const address = document.getElementById('p_address').value.trim();
+  if (!name) { showMsg(err, 'กรุณากรอกชื่อ-นามสกุล'); return; }
+
+  btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
+  try {
+    const r = await fetch('/api/member/profile', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, address })
+    });
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error || 'เกิดข้อผิดพลาด');
+    document.getElementById('avatarName').textContent = name;
+    document.getElementById('avatar').textContent     = name.charAt(0).toUpperCase();
+    showMsg(ok, null, true);
+  } catch (e) { showMsg(err, e.message); }
+  btn.disabled = false; btn.textContent = 'บันทึกข้อมูลจัดส่ง';
+}
+
+async function savePassword() {
+  const btn = document.getElementById('savePwBtn');
+  const ok  = document.getElementById('pwOk');
+  const err = document.getElementById('pwErr');
+  ok.style.display = err.style.display = 'none';
+
+  const cur     = document.getElementById('pw_current').value;
+  const nw      = document.getElementById('pw_new').value;
+  const confirm = document.getElementById('pw_confirm').value;
+  if (!cur || !nw) { showMsg(err, 'กรุณากรอกรหัสผ่านให้ครบ'); return; }
+  if (nw !== confirm) { showMsg(err, 'รหัสผ่านใหม่ไม่ตรงกัน'); return; }
+  if (nw.length < 4)  { showMsg(err, 'รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร'); return; }
+
+  btn.disabled = true; btn.textContent = 'กำลังเปลี่ยน...';
+  try {
+    const r = await fetch('/api/member/password', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current_password: cur, new_password: nw })
+    });
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error || 'เกิดข้อผิดพลาด');
+    document.getElementById('pw_current').value = '';
+    document.getElementById('pw_new').value     = '';
+    document.getElementById('pw_confirm').value = '';
+    showMsg(ok, null, true);
+  } catch (e) { showMsg(err, e.message); }
+  btn.disabled = false; btn.textContent = 'เปลี่ยนรหัสผ่าน';
+}
+
+function showMsg(el, text, isOk) {
+  if (text) el.textContent = text;
+  el.style.display = 'block';
+  if (isOk) setTimeout(() => el.style.display = 'none', 3000);
+}
+
+async function logout() {
+  if (!confirm('ออกจากระบบ?')) return;
+  await fetch('/api/auth/logout', { method: 'POST' });
+  window.location.href = '/';
+}
+
+init();
+</script>
+</body>
+</html>

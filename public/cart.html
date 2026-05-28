@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ตะกร้าสินค้า — TCG Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0d1821;--surface:#162030;--surface2:#1e2e42;--border:#253650;
+          --accent:#f0c040;--accent-dark:#d4a820;--text:#e4ecf5;--muted:#7a9ab8;
+          --red:#e53e3e;--green:#22c55e;--yellow:#f59e0b;--radius:12px;
+          --shadow:0 6px 24px rgba(0,0,0,.45)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+    /* Header */
+    .header{background:var(--surface);border-bottom:1px solid var(--border);
+            padding:14px 24px;display:flex;align-items:center;gap:16px;
+            position:sticky;top:0;z-index:100}
+    .header a{color:var(--muted);text-decoration:none;font-size:.9rem;display:flex;align-items:center;gap:6px}
+    .header a:hover{color:var(--accent)}
+    .header h1{font-size:1.1rem;font-weight:600}
+    .header-right{margin-left:auto;font-size:.85rem;color:var(--muted)}
+
+    /* Layout */
+    .wrap{max-width:900px;margin:0 auto;padding:28px 20px;display:grid;
+          grid-template-columns:1fr 300px;gap:24px;align-items:start}
+    @media(max-width:700px){.wrap{grid-template-columns:1fr;padding:16px}}
+
+    /* Cart items */
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+    .section-title{padding:16px 20px;font-size:.85rem;font-weight:600;text-transform:uppercase;
+                   letter-spacing:1.5px;color:var(--muted);border-bottom:1px solid var(--border)}
+
+    .cart-item{display:flex;gap:14px;padding:16px 20px;border-bottom:1px solid var(--border);align-items:flex-start}
+    .cart-item:last-child{border-bottom:none}
+    .cart-img{width:52px;height:73px;border-radius:6px;object-fit:cover;background:var(--border);flex-shrink:0}
+    .cart-img-ph{width:52px;height:73px;border-radius:6px;background:var(--border);flex-shrink:0;
+                  display:flex;align-items:center;justify-content:center;font-size:1.4rem;opacity:.4}
+    .cart-info{flex:1;min-width:0}
+    .cart-name{font-weight:600;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .cart-code{font-size:.75rem;color:var(--muted);margin-top:2px}
+    .cart-price{color:var(--accent);font-weight:700;font-size:1rem;margin-top:6px}
+    .cart-warn{font-size:.75rem;padding:3px 8px;border-radius:4px;margin-top:5px;display:inline-block}
+    .warn-reduced{background:rgba(245,158,11,.15);color:var(--yellow)}
+    .warn-out{background:rgba(229,62,62,.15);color:#fc8181}
+
+    .cart-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
+    .qty-ctrl{display:flex;align-items:center;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+    .qty-ctrl button{width:32px;height:32px;background:var(--surface2);border:none;color:var(--text);
+                     font-size:1rem;cursor:pointer;transition:background .15s;line-height:1}
+    .qty-ctrl button:hover{background:var(--border)}
+    .qty-ctrl button:disabled{opacity:.35;cursor:not-allowed}
+    .qty-ctrl span{width:38px;text-align:center;font-weight:600;font-size:.9rem}
+    .subtotal{font-size:.9rem;color:var(--muted)}
+    .subtotal strong{color:var(--text)}
+    .remove-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;
+                padding:3px 6px;border-radius:4px;transition:all .15s}
+    .remove-btn:hover{background:rgba(229,62,62,.15);color:#fc8181}
+
+    /* Empty state */
+    .empty{text-align:center;padding:60px 20px;color:var(--muted)}
+    .empty .icon{font-size:3rem;margin-bottom:12px}
+    .empty a{color:var(--accent);text-decoration:none}
+
+    /* Order panel */
+    .order-panel{background:var(--surface);border:1px solid var(--border);
+                 border-radius:var(--radius);padding:20px;position:sticky;top:74px}
+    .order-panel h3{font-size:.95rem;font-weight:600;margin-bottom:16px;padding-bottom:12px;
+                    border-bottom:1px solid var(--border)}
+    .total-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:.88rem;color:var(--muted)}
+    .total-grand{display:flex;justify-content:space-between;padding-top:12px;
+                 border-top:1px solid var(--border);margin-top:4px;font-size:1.1rem;font-weight:700}
+    .total-grand span:last-child{color:var(--accent)}
+    .field{margin-bottom:12px}
+    .field label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:4px}
+    .field input{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);
+                 border-radius:8px;color:var(--text);font-family:'Kanit',sans-serif;font-size:.88rem;
+                 outline:none;transition:border-color .2s}
+    .field input:focus{border-color:var(--accent)}
+    .member-info{background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+                 padding:10px 14px;margin-bottom:12px;font-size:.85rem}
+    .member-info strong{color:var(--accent)}
+    .fb-btn{width:100%;padding:13px;background:#1877f2;color:#fff;border:none;
+            border-radius:8px;font-family:'Kanit',sans-serif;font-size:1rem;font-weight:600;
+            cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+            transition:background .2s;margin-top:4px}
+    .fb-btn:hover{background:#1558b0}
+    .fb-btn:disabled{opacity:.55;cursor:not-allowed}
+    .login-link{display:block;text-align:center;color:var(--muted);font-size:.8rem;margin-top:8px}
+    .login-link a{color:var(--accent);text-decoration:none}
+
+    /* Success modal */
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;
+              align-items:center;justify-content:center}
+    .modal-bg.open{display:flex}
+    .modal{background:var(--surface);border-radius:var(--radius);padding:28px;width:90%;max-width:420px;
+           box-shadow:var(--shadow);text-align:center}
+    .modal h3{font-size:1.15rem;font-weight:700;margin-bottom:8px;color:var(--accent)}
+    .modal p{color:var(--muted);font-size:.9rem;margin-bottom:16px}
+    .modal pre{background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+               padding:12px;font-family:'Kanit',sans-serif;font-size:.8rem;text-align:left;
+               white-space:pre-wrap;margin-bottom:14px;max-height:200px;overflow-y:auto}
+    .copy-btn{padding:9px 20px;background:var(--surface2);border:1px solid var(--border);
+              color:var(--text);border-radius:8px;font-family:'Kanit',sans-serif;font-size:.88rem;
+              cursor:pointer;margin-right:8px}
+    .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .close-btn{padding:9px 20px;background:var(--accent);border:none;color:#1a2f4e;
+               border-radius:8px;font-family:'Kanit',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer}
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    กลับหน้าร้าน
+  </a>
+  <h1>🛒 ตะกร้าสินค้า</h1>
+  <div class="header-right" id="memberNav"></div>
+</header>
+
+<div class="wrap">
+  <!-- Cart items -->
+  <div>
+    <div class="section" id="cartSection">
+      <div class="section-title">รายการสินค้า</div>
+      <div id="cartItems"><div class="empty"><div class="icon">🛒</div><p>ตะกร้าว่างเปล่า<br><a href="/">เลือกซื้อสินค้า</a></p></div></div>
+    </div>
+  </div>
+
+  <!-- Order panel -->
+  <div class="order-panel" id="orderPanel">
+    <h3>สรุปคำสั่งซื้อ</h3>
+    <div id="totalArea">
+      <div class="total-grand"><span>ยอดรวม</span><span id="grandTotal">฿0</span></div>
+    </div>
+    <div style="margin:16px 0 10px;border-top:1px solid var(--border);padding-top:14px">
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:10px">ข้อมูลผู้สั่งซื้อ</p>
+      <div id="memberInfoArea"></div>
+    </div>
+    <button class="fb-btn" id="fbOrderBtn" onclick="placeOrder()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      สั่งซื้อผ่าน Facebook
+    </button>
+    <p class="login-link" id="loginHint"></p>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-bg" id="successModal">
+  <div class="modal">
+    <h3>✅ ส่งคำสั่งซื้อแล้ว!</h3>
+    <p id="modalOrderId"></p>
+    <p style="margin-bottom:10px;color:var(--muted);font-size:.82rem">คัดลอกข้อความด้านล่างแล้วส่งใน Facebook Messenger</p>
+    <pre id="orderMessage"></pre>
+    <button class="copy-btn" onclick="copyMessage()">📋 คัดลอก</button>
+    <button class="close-btn" onclick="closeModal()">ปิด</button>
+  </div>
+</div>
+
+<script src="js/cart.js"></script>
+</body>
+</html>

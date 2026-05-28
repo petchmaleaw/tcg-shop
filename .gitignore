@@ -4,3 +4,6 @@ uploads/*
 .claude/
 .gemini/
 *.log
+server_err.txt
+server_out.txt
+*.txt

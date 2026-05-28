@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ประวัติการสั่งซื้อ — TCG Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0d1821;--surface:#162030;--surface2:#1e2e42;--border:#253650;
+          --accent:#f0c040;--text:#e4ecf5;--muted:#7a9ab8;--green:#22c55e;
+          --yellow:#f59e0b;--red:#e53e3e;--radius:12px;--shadow:0 6px 24px rgba(0,0,0,.45)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+    /* Header */
+    .header{background:var(--surface);border-bottom:1px solid var(--border);
+            padding:14px 24px;display:flex;align-items:center;gap:16px;
+            position:sticky;top:0;z-index:100}
+    .header a.back{color:var(--muted);text-decoration:none;font-size:.9rem;
+                   display:flex;align-items:center;gap:6px}
+    .header a.back:hover{color:var(--accent)}
+    .header h1{font-size:1.1rem;font-weight:600}
+    .header-right{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:.85rem;color:var(--muted)}
+    .logout-btn{background:none;border:1px solid var(--border);color:var(--muted);
+                font-family:'Kanit',sans-serif;font-size:.78rem;padding:4px 10px;
+                border-radius:6px;cursor:pointer;transition:all .2s}
+    .logout-btn:hover{border-color:var(--red);color:#fc8181}
+
+    /* Layout */
+    .wrap{max-width:800px;margin:0 auto;padding:28px 20px}
+
+    /* Member info card */
+    .member-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+                 padding:20px;margin-bottom:24px;display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+    .member-avatar{width:52px;height:52px;border-radius:50%;background:var(--accent);
+                   display:flex;align-items:center;justify-content:center;
+                   font-size:1.4rem;font-weight:700;color:#1a2f4e;flex-shrink:0}
+    .member-details{flex:1;min-width:0}
+    .member-name{font-size:1.05rem;font-weight:600;color:var(--accent)}
+    .member-meta{font-size:.82rem;color:var(--muted);margin-top:4px;line-height:1.7}
+    .member-address{font-size:.82rem;color:var(--muted);margin-top:6px;
+                    background:var(--surface2);border-radius:6px;padding:8px 12px;
+                    border-left:3px solid var(--border)}
+    .edit-profile-btn{margin-top:10px;display:inline-flex;align-items:center;gap:6px;
+                      padding:7px 14px;background:var(--surface2);border:1px solid var(--border);
+                      border-radius:8px;color:var(--muted);text-decoration:none;font-size:.82rem;
+                      transition:all .2s}
+    .edit-profile-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+    /* Orders */
+    .section-title{font-size:.85rem;font-weight:600;text-transform:uppercase;
+                   letter-spacing:1.5px;color:var(--muted);margin-bottom:14px}
+    .order-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+                margin-bottom:16px;overflow:hidden}
+    .order-head{padding:14px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+                cursor:pointer;transition:background .15s;user-select:none}
+    .order-head:hover{background:var(--surface2)}
+    .order-id{font-weight:700;font-size:.95rem}
+    .order-date{font-size:.78rem;color:var(--muted)}
+    .order-total{margin-left:auto;font-weight:700;color:var(--accent);font-size:.95rem}
+    .order-status{padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600}
+    .status-pending{background:rgba(245,158,11,.15);color:var(--yellow)}
+    .status-confirmed{background:rgba(34,197,94,.15);color:var(--green)}
+    .status-cancelled{background:rgba(229,62,62,.15);color:#fc8181}
+    .order-chevron{font-size:.7rem;color:var(--muted);transition:transform .2s;margin-left:4px}
+    .order-card.open .order-chevron{transform:rotate(180deg)}
+
+    /* Order items */
+    .order-items{display:none;padding:0 20px 16px;border-top:1px solid var(--border)}
+    .order-card.open .order-items{display:block}
+    .order-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);align-items:center}
+    .order-item:last-child{border-bottom:none}
+    .item-img{width:38px;height:53px;border-radius:4px;object-fit:cover;
+              background:var(--border);flex-shrink:0}
+    .item-img-ph{width:38px;height:53px;border-radius:4px;background:var(--border);
+                 flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.9rem;opacity:.4}
+    .item-info{flex:1;min-width:0}
+    .item-name{font-size:.88rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .item-code{font-size:.73rem;color:var(--muted)}
+    .item-right{text-align:right;flex-shrink:0;font-size:.82rem;color:var(--muted)}
+    .item-right strong{display:block;color:var(--text)}
+
+    /* Empty */
+    .empty{text-align:center;padding:80px 20px;color:var(--muted)}
+    .empty .icon{font-size:3rem;margin-bottom:14px}
+    .empty a{color:var(--accent);text-decoration:none}
+
+    /* Loading */
+    .loading{text-align:center;padding:60px 20px;color:var(--muted)}
+    .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);
+             border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media(max-width:600px){.wrap{padding:16px}.member-card{gap:14px}}
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    กลับหน้าร้าน
+  </a>
+  <h1>📋 ประวัติการสั่งซื้อ</h1>
+  <div class="header-right">
+    <span id="memberNameNav"></span>
+    <button class="logout-btn" id="logoutBtn" onclick="logout()">ออกจากระบบ</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- Member info -->
+  <div class="member-card" id="memberCard" style="display:none">
+    <div class="member-avatar" id="memberAvatar">?</div>
+    <div class="member-details">
+      <div class="member-name" id="memberName"></div>
+      <div class="member-meta" id="memberMeta"></div>
+      <div class="member-address" id="memberAddress" style="display:none"></div>
+      <a href="/profile.html" class="edit-profile-btn">✏️ แก้ไขข้อมูลจัดส่ง</a>
+    </div>
+  </div>
+
+  <!-- Orders -->
+  <div class="section-title">รายการสั่งซื้อทั้งหมด</div>
+  <div id="ordersList">
+    <div class="loading"><div class="spinner"></div>กำลังโหลด...</div>
+  </div>
+</div>
+
+<script>
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+async function init() {
+  const me = await fetch('/api/auth/me').then(r=>r.json()).catch(()=>({authenticated:false}));
+  if (!me.authenticated) {
+    window.location.href = '/login.html?redirect=/orders-history.html';
+    return;
+  }
+
+  /* Member info */
+  document.getElementById('memberNameNav').textContent = me.name;
+  document.getElementById('memberAvatar').textContent  = me.name.charAt(0).toUpperCase();
+  document.getElementById('memberName').textContent    = me.name;
+
+  const meta = ['@' + (me.username || ''), me.phone ? '📞 ' + me.phone : ''].filter(Boolean).join('  ·  ');
+  document.getElementById('memberMeta').textContent = meta;
+
+  if (me.address) {
+    const el = document.getElementById('memberAddress');
+    el.textContent = '📍 ' + me.address;
+    el.style.display = 'block';
+  }
+  document.getElementById('memberCard').style.display = 'flex';
+
+  /* Orders */
+  await loadOrders();
+}
+
+async function loadOrders() {
+  const res  = await fetch('/api/member/orders').catch(()=>null);
+  const list = document.getElementById('ordersList');
+
+  if (!res || !res.ok) {
+    list.innerHTML = `<div class="empty"><div class="icon">⚠️</div><p>โหลดข้อมูลไม่สำเร็จ</p></div>`;
+    return;
+  }
+  const data   = await res.json();
+  const orders = data.data || [];
+
+  if (!orders.length) {
+    list.innerHTML = `<div class="empty"><div class="icon">🛒</div>
+      <p>ยังไม่มีประวัติการสั่งซื้อ<br><a href="/">เลือกซื้อสินค้า</a></p></div>`;
+    return;
+  }
+
+  const statusLabel = { pending:'รอดำเนินการ', confirmed:'ยืนยันแล้ว', cancelled:'ยกเลิก' };
+  const statusClass = { pending:'status-pending', confirmed:'status-confirmed', cancelled:'status-cancelled' };
+
+  list.innerHTML = orders.map(o => {
+    const date  = new Date(o.created_at).toLocaleDateString('th-TH', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const cls   = statusClass[o.status] || 'status-pending';
+    const label = statusLabel[o.status] || o.status;
+    const items = (o.items || []).map(i => `
+      <div class="order-item">
+        ${i.image
+          ? `<img class="item-img" src="${esc(i.image)}" alt="" onerror="this.outerHTML='<div class=item-img-ph>🃏</div>'">`
+          : '<div class="item-img-ph">🃏</div>'}
+        <div class="item-info">
+          <div class="item-name">${esc(i.card_name)}</div>
+          <div class="item-code">${esc(i.card_code || '')}</div>
+        </div>
+        <div class="item-right">
+          <strong>฿${Number(i.price_thb).toLocaleString('th-TH')}</strong>
+          x${i.qty}
+        </div>
+      </div>`).join('');
+
+    return `
+      <div class="order-card" id="ord-${o.id}">
+        <div class="order-head" onclick="toggleOrder(${o.id})">
+          <div>
+            <div class="order-id">Order #${o.id}</div>
+            <div class="order-date">${date}</div>
+          </div>
+          <span class="order-status ${cls}">${label}</span>
+          <div class="order-total">฿${Number(o.total_thb).toLocaleString('th-TH')}</div>
+          <span class="order-chevron">▼</span>
+        </div>
+        <div class="order-items">${items}</div>
+      </div>`;
+  }).join('');
+}
+
+function toggleOrder(id) {
+  document.getElementById('ord-' + id)?.classList.toggle('open');
+}
+
+async function logout() {
+  if (!confirm('ออกจากระบบ?')) return;
+  await fetch('/api/auth/logout', { method:'POST' });
+  window.location.href = '/';
+}
+
+init();
+</script>
+</body>
+</html>

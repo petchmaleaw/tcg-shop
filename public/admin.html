@@ -13,9 +13,7 @@
 
   <!-- ===== NAV ===== -->
   <nav class="nav">
-    <div class="nav-logo">
-      <span>🃏</span> TCG Admin
-    </div>
+    <div class="nav-logo"><span>🃏</span> TCG Admin</div>
     <ul class="nav-menu">
       <li class="nav-link active" data-tab="add">
         <span class="nav-icon">➕</span> เพิ่มการ์ด
@@ -23,13 +21,23 @@
       <li class="nav-link" data-tab="listings">
         <span class="nav-icon">📋</span> รายการขาย
       </li>
+      <li class="nav-link" data-tab="orders">
+        <span class="nav-icon">🛒</span> คำสั่งซื้อ
+        <span class="nav-badge" id="pendingBadge" style="display:none"></span>
+      </li>
+      <li class="nav-link" data-tab="bulk">
+        <span class="nav-icon">📦</span> เพิ่มการ์ดหลายใบ
+      </li>
       <li class="nav-link" data-tab="settings">
         <span class="nav-icon">⚙️</span> ตั้งค่า
       </li>
     </ul>
-    <a href="/" target="_blank" class="view-store">
-      <span>🌐</span> ดูหน้าร้าน
-    </a>
+    <div style="padding:0 0 8px">
+      <a href="/" target="_blank" class="view-store"><span>🌐</span> ดูหน้าร้าน</a>
+      <button class="view-store" id="logoutBtn" style="width:100%;border:none;cursor:pointer;background:none;text-align:left">
+        <span>🚪</span> ออกจากระบบ
+      </button>
+    </div>
   </nav>
 
   <!-- ===== MAIN ===== -->
@@ -40,7 +48,7 @@
       <h2 class="page-title">เพิ่มการ์ด</h2>
       <div class="add-layout">
 
-        <!-- Search JustTCG -->
+        <!-- Search -->
         <section class="panel">
           <h3 class="panel-title">ค้นหาจาก JustTCG API</h3>
           <div class="search-bar">
@@ -57,7 +65,6 @@
         <section class="panel">
           <h3 class="panel-title">ข้อมูลที่ลงขาย</h3>
           <form id="addForm" enctype="multipart/form-data">
-            <!-- hidden -->
             <input type="hidden" name="card_id"             id="f_card_id">
             <input type="hidden" name="card_image"          id="f_card_image">
             <input type="hidden" name="game"                id="f_game">
@@ -65,11 +72,8 @@
             <input type="hidden" name="set_name"            id="f_set_name">
             <input type="hidden" name="reference_price_usd" id="f_ref_usd">
 
-            <!-- preview -->
             <div class="img-section">
-              <div class="img-preview" id="imgPreview">
-                <span class="img-ph">🃏</span>
-              </div>
+              <div class="img-preview" id="imgPreview"><span class="img-ph">🃏</span></div>
               <div style="flex:1">
                 <label class="file-btn" for="fileCustom">📁 อัปโหลดรูป</label>
                 <input type="file" id="fileCustom" name="custom_image" accept="image/*">
@@ -97,6 +101,10 @@
               <input type="number" name="price_thb" id="f_price" placeholder="0" min="0" step="1" required>
             </div>
             <div class="field">
+              <label>จำนวนในสต๊อก *</label>
+              <input type="number" name="stock_qty" id="f_stock_qty" value="1" min="0" step="1" required>
+            </div>
+            <div class="field">
               <label>ชื่อผู้ขาย <small>(ไม่แสดงหน้าร้าน)</small></label>
               <input type="text" name="seller_name" id="f_seller" placeholder="ชื่อ-นามสกุล">
             </div>
@@ -110,7 +118,6 @@
             <button type="submit" class="btn btn-success w-full">✅ เพิ่มการ์ดนี้</button>
           </form>
         </section>
-
       </div>
     </div>
 
@@ -124,21 +131,73 @@
         <table class="tbl">
           <thead>
             <tr>
-              <th>รูป</th>
-              <th>ชื่อการ์ด</th>
-              <th>รหัส</th>
-              <th>เกม</th>
-              <th>ราคา (THB)</th>
-              <th>ผู้ขาย</th>
-              <th>สถานะ</th>
-              <th>วันที่</th>
-              <th>จัดการ</th>
+              <th>รูป</th><th>ชื่อการ์ด</th><th>รหัส</th><th>เกม</th>
+              <th>ราคา (THB)</th><th>สต๊อก</th><th>ผู้ขาย</th>
+              <th>สถานะ</th><th>วันที่</th><th>จัดการ</th>
             </tr>
           </thead>
           <tbody id="listingsTbody">
-            <tr><td colspan="9" class="center muted">กำลังโหลด...</td></tr>
+            <tr><td colspan="10" class="center muted">กำลังโหลด...</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: คำสั่งซื้อ ── -->
+    <div class="tab" id="tab-orders">
+      <div class="page-header">
+        <h2 class="page-title">คำสั่งซื้อ</h2>
+        <button class="btn btn-ghost" onclick="loadOrders()">🔄 รีเฟรช</button>
+      </div>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>#</th><th>วันที่</th><th>ชื่อลูกค้า</th><th>เบอร์โทร</th>
+              <th>รายการ</th><th>ยอดรวม</th><th>สถานะ</th><th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTbody">
+            <tr><td colspan="8" class="center muted">กำลังโหลด...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: เพิ่มการ์ดหลายใบ ── -->
+    <div class="tab" id="tab-bulk">
+      <h2 class="page-title">เพิ่มการ์ดหลายใบ</h2>
+      <div class="bulk-box">
+
+        <!-- Seller -->
+        <div class="bulk-seller-row">
+          <label for="bulkSeller">ชื่อผู้ขาย</label>
+          <input type="text" id="bulkSeller" placeholder="ชื่อ-นามสกุลผู้ขาย">
+        </div>
+
+        <!-- Table -->
+        <div class="bulk-table-wrap">
+          <table class="bulk-tbl">
+            <thead>
+              <tr>
+                <th>ชื่อการ์ด</th>
+                <th>จำนวน</th>
+                <th>FOIL</th>
+                <th>สภาพ</th>
+                <th>ราคา (THB)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="bulkRows"></tbody>
+          </table>
+        </div>
+
+        <div class="bulk-footer">
+          <button class="btn btn-ghost" onclick="bulkAddRow()">+ เพิ่มแถว</button>
+          <button class="btn btn-success" onclick="bulkSubmit()">✅ บันทึกทั้งหมด</button>
+        </div>
+        <div id="bulkResult" style="margin-top:14px"></div>
+
       </div>
     </div>
 
@@ -162,7 +221,33 @@
             <span style="color:#64748b">THB</span>
           </div>
         </div>
+        <div class="field">
+          <label>Facebook Page Username</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="color:#64748b;font-size:.9rem">m.me/</span>
+            <input type="text" id="s_fbPage" placeholder="YourPageName" style="flex:1">
+          </div>
+          <p style="font-size:.75rem;color:#94a3b8;margin-top:4px">ใส่ username ของเพจ Facebook ที่ต้องการรับออเดอร์</p>
+        </div>
         <button class="btn btn-success" onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
+      </div>
+
+      <!-- Change Password -->
+      <div class="settings-box" style="margin-top:24px">
+        <h3 style="font-size:1rem;font-weight:600;margin-bottom:16px">🔒 เปลี่ยนรหัสผ่าน Admin</h3>
+        <div class="field">
+          <label>รหัสผ่านปัจจุบัน</label>
+          <input type="password" id="pw_current" placeholder="รหัสผ่านปัจจุบัน">
+        </div>
+        <div class="field">
+          <label>รหัสผ่านใหม่</label>
+          <input type="password" id="pw_new" placeholder="รหัสผ่านใหม่">
+        </div>
+        <div class="field">
+          <label>ยืนยันรหัสผ่านใหม่</label>
+          <input type="password" id="pw_confirm" placeholder="ยืนยันรหัสผ่านใหม่">
+        </div>
+        <button class="btn btn-primary" onclick="changePassword()">🔑 เปลี่ยนรหัสผ่าน</button>
       </div>
     </div>
 
@@ -185,6 +270,7 @@
       <div class="field"><label>ชื่อการ์ด</label><input type="text" name="card_name" id="e_name"></div>
       <div class="field"><label>รหัสการ์ด</label><input type="text" name="card_code" id="e_code"></div>
       <div class="field"><label>ราคา (THB)</label><input type="number" name="price_thb" id="e_price" min="0" step="1"></div>
+      <div class="field"><label>จำนวนในสต๊อก</label><input type="number" name="stock_qty" id="e_stock_qty" min="0" step="1"></div>
       <div class="field"><label>ชื่อผู้ขาย</label><input type="text" name="seller_name" id="e_seller"></div>
       <div class="field">
         <label>สถานะ</label>
@@ -198,6 +284,13 @@
         <button type="submit" class="btn btn-success">บันทึก</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- ===== ORDER DETAIL MODAL ===== -->
+<div class="modal-bg" id="orderModal">
+  <div class="modal modal-order">
+    <div id="orderModalContent"></div>
   </div>
 </div>
 

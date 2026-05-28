@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>เข้าสู่ระบบ / สมัครสมาชิก — TCG Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0d1821;--surface:#162030;--border:#253650;--accent:#f0c040;
+          --text:#e4ecf5;--muted:#7a9ab8;--primary:#3b82f6;--radius:12px}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);
+         min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+          padding:36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+    .logo{text-align:center;margin-bottom:24px}
+    .logo span{font-size:2rem}
+    .logo h1{font-size:1.15rem;font-weight:600;color:var(--accent);margin-top:6px}
+    .tabs{display:flex;background:rgba(255,255,255,.05);border-radius:8px;padding:3px;margin-bottom:24px}
+    .tab-btn{flex:1;padding:9px;border:none;background:none;color:var(--muted);font-family:'Kanit',sans-serif;
+             font-size:.9rem;cursor:pointer;border-radius:6px;transition:all .2s}
+    .tab-btn.active{background:var(--border);color:var(--text);font-weight:500}
+    .tab-pane{display:none}.tab-pane.active{display:block}
+    .field{margin-bottom:16px}
+    .field label{display:block;font-size:.83rem;color:var(--muted);margin-bottom:5px}
+    .field input{width:100%;padding:11px 14px;background:var(--bg);border:1px solid var(--border);
+                 border-radius:8px;color:var(--text);font-family:'Kanit',sans-serif;font-size:.93rem;
+                 outline:none;transition:border-color .2s}
+    .field input:focus{border-color:var(--accent)}
+    .btn{width:100%;padding:12px;background:var(--accent);color:#1a2f4e;border:none;
+         border-radius:8px;font-family:'Kanit',sans-serif;font-size:1rem;font-weight:600;
+         cursor:pointer;transition:background .2s}
+    .btn:hover{background:#d4a820}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .err{background:rgba(229,62,62,.15);border:1px solid rgba(229,62,62,.3);color:#fc8181;
+         padding:10px 14px;border-radius:8px;font-size:.85rem;margin-bottom:14px;display:none}
+    .back{display:block;text-align:center;margin-top:16px;color:var(--muted);
+          text-decoration:none;font-size:.85rem}
+    .back:hover{color:var(--accent)}
+    .privacy-note{background:rgba(240,192,64,.07);border:1px solid rgba(240,192,64,.2);
+                  border-radius:8px;padding:10px 14px;font-size:.78rem;color:var(--muted);
+                  margin-bottom:16px;line-height:1.5}
+    .field textarea{width:100%;padding:11px 14px;background:var(--bg);border:1px solid var(--border);
+                    border-radius:8px;color:var(--text);font-family:'Kanit',sans-serif;font-size:.93rem;
+                    outline:none;transition:border-color .2s;resize:vertical;min-height:72px}
+    .field textarea:focus{border-color:var(--accent)}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <span>🃏</span>
+    <h1>TCG SHOP</h1>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('login',this)">เข้าสู่ระบบ</button>
+    <button class="tab-btn" onclick="switchTab('register',this)">สมัครสมาชิก</button>
+  </div>
+
+  <!-- Login -->
+  <div class="tab-pane active" id="pane-login">
+    <div class="err" id="loginErr"></div>
+    <form id="loginForm">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="l_username" placeholder="ชื่อผู้ใช้" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label>รหัสผ่าน</label>
+        <input type="password" id="l_password" placeholder="รหัสผ่าน" required>
+      </div>
+      <button type="submit" class="btn" id="loginBtn">เข้าสู่ระบบ</button>
+    </form>
+  </div>
+
+  <!-- Register -->
+  <div class="tab-pane" id="pane-register">
+    <div class="privacy-note">ℹ️ ระบบสมาชิกใช้เพื่อบันทึก ชื่อ ที่อยู่ เบอร์โทรสำหรับจัดส่ง และประวัติการสั่งซื้อเท่านั้น</div>
+    <div class="err" id="regErr"></div>
+    <form id="registerForm">
+      <div class="field">
+        <label>Username *</label>
+        <input type="text" id="r_username" placeholder="ตัวอักษร a-z, 0-9, _ (3-30 ตัว)" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label>ชื่อ-นามสกุล *</label>
+        <input type="text" id="r_name" placeholder="ชื่อ นามสกุล" required>
+      </div>
+      <div class="field">
+        <label>เบอร์โทร *</label>
+        <input type="tel" id="r_phone" placeholder="0812345678" required>
+      </div>
+      <div class="field">
+        <label>ที่อยู่สำหรับจัดส่ง *</label>
+        <textarea id="r_address" placeholder="บ้านเลขที่ ถนน แขวง/ตำบล เขต/อำเภอ จังหวัด รหัสไปรษณีย์" required></textarea>
+      </div>
+      <div class="field">
+        <label>รหัสผ่าน *</label>
+        <input type="password" id="r_password" placeholder="ตัวพิมพ์ใหญ่ + ตัวพิมพ์เล็ก + ตัวเลข" required>
+        <div id="pwHint" style="font-size:.73rem;margin-top:4px;color:var(--muted)"></div>
+      </div>
+      <button type="submit" class="btn" id="regBtn">สมัครสมาชิก</button>
+    </form>
+  </div>
+
+  <a href="/" class="back">← กลับหน้าร้าน</a>
+</div>
+<script>
+const redirect = new URLSearchParams(location.search).get('redirect') || '/';
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pane-'+tab).classList.add('active');
+}
+
+/* Check if already logged in */
+fetch('/api/auth/me').then(r=>r.json()).then(d => {
+  if (d.authenticated) window.location.href = redirect;
+});
+
+function checkPwStrength(pw) {
+  if (!pw) return '';
+  const checks = [
+    [pw.length >= 6,   'อย่างน้อย 6 ตัว'],
+    [/[A-Z]/.test(pw), 'ตัวพิมพ์ใหญ่'],
+    [/[a-z]/.test(pw), 'ตัวพิมพ์เล็ก'],
+    [/[0-9]/.test(pw), 'ตัวเลข'],
+  ];
+  const pass = checks.filter(c => c[0]).length;
+  const fail = checks.filter(c => !c[0]).map(c => c[1]);
+  if (pass === 4) return '<span style="color:#22c55e">✓ รหัสผ่านแข็งแกร่ง</span>';
+  return `<span style="color:#f59e0b">ขาด: ${fail.join(', ')}</span>`;
+}
+
+document.getElementById('r_password')?.addEventListener('input', e => {
+  document.getElementById('pwHint').innerHTML = checkPwStrength(e.target.value);
+});
+
+document.getElementById('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginErr');
+  btn.disabled = true; btn.textContent = 'กำลังเข้าสู่ระบบ...'; err.style.display='none';
+  try {
+    const r = await fetch('/api/auth/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username:document.getElementById('l_username').value.trim(), password:document.getElementById('l_password').value })
+    });
+    const d = await r.json();
+    if (d.success) { window.location.href = redirect; return; }
+    err.textContent = d.error; err.style.display='block';
+  } catch { err.textContent='เกิดข้อผิดพลาด'; err.style.display='block'; }
+  btn.disabled=false; btn.textContent='เข้าสู่ระบบ';
+});
+
+document.getElementById('registerForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('regBtn');
+  const err = document.getElementById('regErr');
+  const pw  = document.getElementById('r_password').value;
+  if (checkPwStrength(pw).includes('ขาด')) {
+    err.textContent = 'รหัสผ่านต้องมีตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก และตัวเลข (อย่างน้อย 6 ตัว)';
+    err.style.display='block'; return;
+  }
+  btn.disabled=true; btn.textContent='กำลังสมัคร...'; err.style.display='none';
+  try {
+    const r = await fetch('/api/auth/register', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        username:document.getElementById('r_username').value.trim(),
+        name:    document.getElementById('r_name').value.trim(),
+        phone:   document.getElementById('r_phone').value.trim(),
+        address: document.getElementById('r_address').value.trim(),
+        password:pw
+      })
+    });
+    const d = await r.json();
+    if (d.success) { window.location.href = redirect; return; }
+    err.textContent = d.error; err.style.display='block';
+  } catch { err.textContent='เกิดข้อผิดพลาด'; err.style.display='block'; }
+  btn.disabled=false; btn.textContent='สมัครสมาชิก';
+});
+</script>
+</body>
+</html>

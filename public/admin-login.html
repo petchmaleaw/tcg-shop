@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Login — TCG Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0d1821; --surface:#162030; --border:#253650;
+      --accent:#f0c040; --text:#e4ecf5; --muted:#7a9ab8; --radius:12px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);
+         min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+          padding:40px 36px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+    .logo{text-align:center;margin-bottom:28px}
+    .logo .icon{font-size:2.4rem}
+    .logo h1{font-size:1.2rem;font-weight:600;color:var(--accent);margin-top:8px}
+    .logo p{font-size:.82rem;color:var(--muted);margin-top:3px}
+    .field{margin-bottom:18px}
+    .field label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:6px}
+    .field input{width:100%;padding:11px 14px;background:var(--bg);border:1px solid var(--border);
+                 border-radius:8px;color:var(--text);font-family:'Kanit',sans-serif;font-size:.95rem;
+                 outline:none;transition:border-color .2s}
+    .field input:focus{border-color:var(--accent)}
+    .btn{width:100%;padding:12px;background:var(--accent);color:#1a2f4e;border:none;
+         border-radius:8px;font-family:'Kanit',sans-serif;font-size:1rem;font-weight:600;
+         cursor:pointer;margin-top:4px;transition:background .2s}
+    .btn:hover{background:#d4a820}
+    .err{background:rgba(229,62,62,.15);border:1px solid rgba(229,62,62,.3);color:#fc8181;
+         padding:10px 14px;border-radius:8px;font-size:.88rem;margin-bottom:16px;display:none}
+    .hint{text-align:center;font-size:.78rem;color:var(--muted);margin-top:16px}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="icon">🃏</div>
+    <h1>TCG Admin</h1>
+    <p>เข้าสู่ระบบผู้ดูแล</p>
+  </div>
+  <div class="err" id="errMsg"></div>
+  <form id="loginForm">
+    <div class="field">
+      <label>รหัสผ่าน</label>
+      <input type="password" id="password" placeholder="รหัสผ่าน" autofocus required>
+    </div>
+    <button type="submit" class="btn" id="submitBtn">เข้าสู่ระบบ</button>
+  </form>
+  <p class="hint">รหัสผ่านเริ่มต้น: <strong>admin</strong></p>
+</div>
+<script>
+document.getElementById('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const err = document.getElementById('errMsg');
+  btn.textContent = 'กำลังเข้าสู่ระบบ...';
+  btn.disabled = true;
+  err.style.display = 'none';
+  try {
+    const r = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: document.getElementById('password').value })
+    });
+    const d = await r.json();
+    if (d.success) { window.location.href = '/admin.html'; return; }
+    err.textContent = d.error || 'เกิดข้อผิดพลาด';
+    err.style.display = 'block';
+  } catch {
+    err.textContent = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์';
+    err.style.display = 'block';
+  }
+  btn.textContent = 'เข้าสู่ระบบ';
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>
